@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Login</title>
+</head>
+<body>
+    <div class="container">
+        <div class="tabs">
+            <a href="#patient" class="tab active">Pacjent</a>
+            <a href="#doctor" class="tab">Lekarz</a>
+        </div>
+
+        <div id="patient" class="tab-content active">
+            <h2>Logowanie Pacjenta</h2>
+            <form th:action="@{/login}" method="post">
+                <input type="text" name="username" placeholder="Login" required/>
+                <input type="password" name="password" placeholder="Hasło" required/>
+                <button type="submit">Zaloguj</button>
+            </form>
+            <a th:href="@{/register}">Zarejestruj się jako pacjent</a>
+        </div>
+
+        <div id="doctor" class="tab-content">
+            <h2>Logowanie Lekarza</h2>
+            <form th:action="@{/login}" method="post">
+                <select name="username" required>
+                    <option value="">Wybierz lekarza</option>
+                    <option th:each="doctor : ${doctors}" 
+                            th:value="${doctor.user.username}" 
+                            th:text="${doctor.user.username}">
+                    </option>
+                </select>
+                <input type="password" name="password" placeholder="Hasło" required/>
+                <button type="submit">Zaloguj</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.querySelectorAll('.tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                e.target.classList.add('active');
+                document.querySelector(e.target.getAttribute('href')).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

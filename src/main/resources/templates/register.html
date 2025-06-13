@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rejestracja</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="/js/common.js"></script>
+</head>
+<body>
+    <div class="background-animation"></div>
+
+    <div class="auth-container">
+        <div class="auth-card registration-card">
+            <div class="auth-header">
+                <h2>Rejestracja Pacjenta</h2>
+                <p>Wypełnij formularz aby utworzyć konto</p>
+            </div>
+            
+            <div th:if="${error}" class="alert alert-danger">
+                <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+                <span th:text="${error}"></span>
+            </div>
+
+            <form th:action="@{/register}" method="post" class="registration-form" onsubmit="return validateRegistrationForm()">
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="username">Login</label>
+                        <input type="text" id="username" name="username" class="input-animated" maxlength="30" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" class="input-animated" maxlength="50" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="firstName">Imię</label>
+                        <input type="text" id="firstName" name="firstName" class="input-animated" maxlength="30" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="lastName">Nazwisko</label>
+                        <input type="text" id="lastName" name="lastName" class="input-animated" maxlength="30" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="pesel">PESEL</label>
+                        <input type="text" 
+                               id="pesel" 
+                               name="pesel" 
+                               class="input-animated"
+                               pattern="[0-9]{11}" 
+                               title="PESEL musi składać się z 11 cyfr" 
+                               required>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="phoneNumber">Numer telefonu</label>
+                        <input type="tel" 
+                               id="phoneNumber" 
+                               name="phoneNumber" 
+                               class="input-animated"
+                               pattern="[0-9]{9}" 
+                               title="Numer telefonu musi składać się z 9 cyfr" 
+                               required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="password">Hasło</label>
+                        <div class="password-field">
+                            <input type="password" 
+                                   id="password" 
+                                   name="password" 
+                                   class="input-animated"
+                                   maxlength="17"
+                                   required>
+                            <button type="button" class="password-toggle" data-target="password">
+                                <svg class="eye-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="confirmPassword">Powtórz hasło</label>
+                        <div class="password-field">
+                            <input type="password" 
+                                   id="confirmPassword" 
+                                   name="confirmPassword" 
+                                   class="input-animated"
+                                   required>
+                            <button type="button" class="password-toggle" data-target="confirmPassword">
+                                <svg class="eye-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-button">
+                    <span>Zarejestruj się</span>
+                    <svg class="button-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Masz już konto?</p>
+                <a th:href="@{/login}" class="login-link">
+                    Zaloguj się
+                    <span class="link-icon">→</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: main-footer}"></div>
+
+    <script src="/js/animations.js"></script>
+    <script src="/js/form-validation.js"></script>
+    <script src="/js/password-handler.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            new AnimationHandler();
+            new PasswordHandler();
+        });
+
+        function validateRegistrationForm() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const pesel = document.getElementById('pesel').value;
+            const phone = document.getElementById('phoneNumber').value;
+            
+            if (!FormValidator.validatePassword(password, confirmPassword)) {
+                FormValidator.showNotification('Hasła nie są identyczne', 'error');
+                return false;
+            }
+            
+            if (!FormValidator.validatePesel(pesel)) {
+                FormValidator.showNotification('PESEL musi składać się z 11 cyfr', 'error');
+                return false;
+            }
+            
+            if (!FormValidator.validatePhoneNumber(phone)) {
+                FormValidator.showNotification('Numer telefonu musi składać się z 9 cyfr', 'error');
+                return false;
+            }
+            
+            return true;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Umów wizytę</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-animation"></div>
+    
+    <div th:replace="~{fragments/nav :: main-nav}"></div>
+
+    <div class="content-container">
+        <div class="appointment-form-card">
+            <h2 class="form-title">Umów nową wizytę</h2>
+            
+            <div th:if="${errorMessage}" class="alert alert-danger">
+                <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <form id="appointmentForm" th:action="@{/appointments}" method="post" class="appointment-form">
+                <div class="form-group">
+                    <label for="doctorId">Wybierz lekarza:</label>
+                    <div class="select-wrapper">
+                        <select id="doctorId" name="doctorId" required onchange="loadDoctorAvailability()">
+                            <option value="">Wybierz lekarza</option>
+                            <option th:each="doctor : ${doctors}"
+                                    th:value="${doctor.id}"
+                                    th:text="${'Dr. ' + doctor.user.firstName + '  '+ doctor.user.lastName + ' - ' + doctor.specialization}">
+                                </option>
+                        </select>
+                        <svg class="select-arrow" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="date">Data i godzina:</label>
+                    <input type="datetime-local" 
+                           id="date" 
+                           name="date" 
+                           required
+                           class="date-input"
+                           min=""
+                           max=""
+                           >
+                    <div class="date-hint">Wybierz dogodny termin wizyty</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reason">Powód wizyty:</label>
+                    <textarea id="reason" 
+                              name="reason" 
+                              required
+                              placeholder="Opisz krótko powód wizyty..."
+                              class="reason-input"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="isNfz">Wizyta na NFZ:</label>
+                    <input type="checkbox" id="isNfz" name="isNfz" onchange="updateDateConstraints()">
+                </div>
+                
+                <button type="submit" class="submit-button">
+                    <span>Zaplanuj wizytę</span>
+                    <svg class="button-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
+            </form>
+        </div>
+
+        <div class="schedule-table">
+            <h2>Harmonogram przyjęć lekarzy</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Lekarz</th>
+                        <th>Specjalizacja</th>
+                        <th>Dni przyjęć</th>
+                        <th>Godziny</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="doctor : ${doctors}">
+                        <td th:text="${'Dr. ' + doctor.user.firstName + '  '+ doctor.user.lastName}"></td>
+                        <td th:text="${doctor.specialization}"></td>
+                        <td>
+                            <span th:each="availability : ${availabilities.get(doctor.id)}"
+                                  th:text="${availability.dayOfWeek.getDisplayName(T(java.time.format.TextStyle).FULL, new java.util.Locale('pl', 'PL'))} + ' '"
+                                  class="schedule-day">
+                            </span>
+                        </td>
+                        <td>
+                            <span th:if="${!availabilities.get(doctor.id).isEmpty()}"
+                                  th:text="${availabilities.get(doctor.id)[0].startTime + ' - ' + availabilities.get(doctor.id)[0].endTime}">
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: main-footer}"></div>
+
+    <script src="/js/animations.js"></script>
+    <script src="/js/form-validation.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            new AnimationHandler();
+
+            const form = document.getElementById('appointmentForm');
+            form.addEventListener('submit', function(e) {
+                if (!FormValidator.validateAppointmentForm()) {
+                    e.preventDefault();
+                }
+
+            });
+        });
+    </script>
+    <script>
+function updateDateConstraints() {
+    const dateInput = document.getElementById('date');
+    const isNfz = document.getElementById('isNfz').checked;
+    
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    
+
+    const maxDate = new Date();
+    maxDate.setFullYear(maxDate.getFullYear() + 1);
+    
+    if (isNfz) {
+
+        const sixMonths = new Date();
+        sixMonths.setMonth(sixMonths.getMonth() + 6);
+        dateInput.min = sixMonths.toISOString().slice(0,16);
+        dateInput.value = sixMonths.toISOString().slice(0,16);
+    } else {
+        dateInput.min = today.toISOString().slice(0,16);
+    }
+    
+    dateInput.max = maxDate.toISOString().slice(0,16);
+
+
+    const picker = dateInput._flatpickr || dateInput;
+    picker.config = picker.config || {};
+    picker.config.disable = [
+        function(date) {
+            return date.getDay() === 0 || date.getDay() === 6;
+        }
+    ];
+}
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateDateConstraints();
+    
+
+    const dateInput = document.getElementById('date');
+    dateInput.addEventListener('input', function() {
+        const date = new Date(this.value);
+        if (date.getDay() === 0 || date.getDay() === 6) { 
+            alert('Wizyty nie są dostępne w weekendy');
+            this.value = '';
+        }
+    });
+});
+</script>
+</body>
+</html>

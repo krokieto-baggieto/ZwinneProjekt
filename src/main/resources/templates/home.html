@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Rejestracji Wizyt Lekarskich</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-animation"></div>
+    
+    <div class="home-container">
+
+        <header class="main-header">
+            <h1>System Rejestracji Wizyt Lekarskich</h1>
+            <p>Witaj w nowoczesnym systemie zarządzania wizytami medycznymi</p>
+        </header>
+
+
+        <div th:if="${param.logout}" class="alert alert-success" role="alert">
+            <div class="alert-content">
+                <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span>Zostałeś pomyślnie wylogowany!</span>
+            </div>
+        </div>
+        
+
+        <div class="portal-choice" sec:authorize="!isAuthenticated()">
+            <a th:href="@{/login/patient}" class="portal-btn patient-portal">
+                <img src="/images/patient-icon.png" alt="Pacjent">
+                <h3>Portal Pacjenta</h3>
+                <p>Zaloguj się lub zarejestruj nowe konto</p>
+            </a>
+            
+            <a th:href="@{/login/doctor}" class="portal-btn doctor-portal">
+                <img src="/images/doctor-icon.png" alt="Lekarz">
+                <h3>Portal Lekarza</h3>
+                <p>Dostęp dla personelu medycznego</p>
+            </a>
+        </div>
+
+        <div class="portal-choice" sec:authorize="isAuthenticated()">
+
+            <div sec:authorize="hasRole('PATIENT')" class="auth-options">
+                <form th:action="@{/appointments}" method="get">
+                    <button type="submit" class="btn btn-primary">
+                        <span>Wróć do panelu pacjenta</span>
+                    </button>
+                </form>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-danger">
+                        <span>Wyloguj się</span>
+                    </button>
+                </form>
+            </div>
+
+            <div sec:authorize="hasRole('DOCTOR')" class="auth-options">
+                <form th:action="@{/doctor/appointments}" method="get">
+                    <button type="submit" class="btn btn-primary">
+                        <span>Wróć do panelu lekarza</span>
+                    </button>
+                </form>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-danger">
+                        <span>Wyloguj się</span>
+                    </button>
+                </form>
+            </div>
+            
+
+            <div sec:authorize="hasRole('ADMIN')" class="auth-options">
+                <form th:action="@{/admin}" method="get">
+                    <button type="submit" class="btn btn-primary">
+                        <span>Wróć do panelu administratora</span>
+                    </button>
+                </form>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-danger">
+                        <span>Wyloguj się</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+
+        <div th:replace="~{fragments/footer :: main-footer}"></div>
+    </div>
+
+
+    <script src="/js/animations.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            new AnimationHandler();
+        });
+    </script>
+</body>
+</html>

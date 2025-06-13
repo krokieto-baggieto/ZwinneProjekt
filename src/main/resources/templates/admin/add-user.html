@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dodaj użytkownika</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <div th:replace="~{fragments/nav :: main-nav}"></div>
+
+    <div class="admin-container">
+        <h1>Dodaj nowego użytkownika</h1>
+        
+        <div th:if="${errorMessage}" class="alert alert-danger">
+            <span th:text="${errorMessage}"></span>
+        </div>
+        
+        <form th:action="@{/admin/user/add}" method="post" class="admin-form">
+            <div class="form-group">
+                <label>Login:</label>
+                <input type="text" name="username" required class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label>Hasło:</label>
+                <input type="password" name="password" required class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" name="email" required class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label>Imię:</label>
+                <input type="text" name="firstName" required class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label>Nazwisko:</label>
+                <input type="text" name="lastName" required class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label>PESEL:</label>
+                <input type="text" name="pesel" required class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label>Telefon:</label>
+                <input type="text" name="phoneNumber" required class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label for="role">Rola:</label>
+                <select id="role" name="role" class="form-control" onchange="toggleDoctorFields()">
+                    <option value="PATIENT">Pacjent</option>
+                    <option value="DOCTOR">Lekarz</option>
+                    <option value="ADMIN">Administrator</option>
+                </select>
+            </div>
+
+            <div id="doctorFields" style="display: none;">
+                <div class="form-group">
+                    <label for="specialization">Specjalizacja:</label>
+                    <input type="text" id="specialization" name="specialization" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="price">Cena wizyty (PLN):</label>
+                    <input type="number" id="price" name="price" step="0.01" class="form-control">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Dodaj użytkownika</button>
+            <a href="/admin" class="btn btn-secondary">Anuluj</a>
+        </form>
+    </div>
+
+    <div th:replace="~{fragments/footer :: main-footer}"></div>
+
+    <script>
+    function toggleDoctorFields() {
+        const role = document.getElementById('role').value;
+        const doctorFields = document.getElementById('doctorFields');
+        doctorFields.style.display = role === 'DOCTOR' ? 'block' : 'none';
+        
+        if (role !== 'DOCTOR') {
+            document.getElementById('specialization').value = '';
+            document.getElementById('price').value = '';
+        }
+    }
+
+
+    document.addEventListener('DOMContentLoaded', toggleDoctorFields);
+    </script>
+</body>
+</html>

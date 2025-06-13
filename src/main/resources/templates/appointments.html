@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moje Wizyty</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.10/index.global.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.10/index.global.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.10/index.global.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.10/index.global.min.js'></script>
+</head>
+<body>
+    <div class="background-animation"></div>
+    
+    <div class="dashboard-container">
+        <div th:replace="~{fragments/nav :: main-nav}"></div>
+
+        <div class="content-container">
+            <div class="appointments-header">
+                <h2>Moje Wizyty</h2>
+                <a th:href="@{/appointments/add}" class="add-appointment-btn">
+                    <svg class="add-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
+                    </svg>
+                    Umów nową wizytę
+                </a>
+            </div>
+
+            <div class="appointments-grid">
+                <div class="appointments-section">
+                    <h2>
+                        <svg class="tab-icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/>
+                        </svg>
+                        Oczekujące wizyty
+                    </h2>
+                    <div class="appointments-cards">
+                        <div th:each="appointment : ${appointments}" th:if="${appointment.status == T(com.example.medicalapp.model.Appointment.AppointmentStatus).PENDING}" class="appointment-card pending">
+                            <div class="appointment-header">
+                                <span class="appointment-date" th:text="${#temporals.format(appointment.date, 'dd.MM.yyyy HH:mm')}"></span>
+                                <span class="status-badge pending">Oczekująca</span>
+                            </div>
+                            <div class="appointment-body">
+                                <p class="doctor-name" th:text="${'Lekarz: ' + 'Dr. ' +  appointment.doctor.user.firstName + ' ' + appointment.doctor.user.lastName}"></p>
+                                <p class="appointment-reason" th:text="${'Powód: ' + appointment.reason}"></p>
+                                <p th:if="${appointment.isNfz}" th:text="'NFZ'"></p>
+                                <p th:if="${!appointment.isNfz}" th:text="${'Cena: ' + appointment.doctor.price + ' PLN'}"></p>
+                            </div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(appointments) || !#lists.contains(appointments.![status], T(com.example.medicalapp.model.Appointment.AppointmentStatus).PENDING)}" class="empty-state">
+                            <p>Brak oczekujących wizyt</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="appointments-section">
+                    <h2>
+                        <svg class="tab-icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Zaakceptowane wizyty
+                    </h2>
+                    <div class="appointments-cards">
+                        <div th:each="appointment : ${appointments}" th:if="${appointment.status == T(com.example.medicalapp.model.Appointment.AppointmentStatus).ACCEPTED}" class="appointment-card accepted">
+                            <div class="appointment-header">
+                                <span class="appointment-date" th:text="${#temporals.format(appointment.date, 'dd.MM.yyyy HH:mm')}"></span>
+                                <span class="status-badge accepted">Zaakceptowana</span>
+                            </div>
+                            <div class="appointment-body">
+                                <p class="doctor-name" th:text="${'Lekarz: ' + 'Dr. ' + appointment.doctor.user.firstName + ' ' + appointment.doctor.user.lastName}"></p>
+                                <p class="appointment-reason" th:text="${'Powód: ' + appointment.reason}"></p>
+                                <p th:if="${appointment.isNfz}" th:text="'NFZ'"></p>
+                                <p th:if="${!appointment.isNfz}" th:text="${'Cena: ' + appointment.doctor.price + ' PLN'}"></p>
+                            </div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(appointments) || !#lists.contains(appointments.![status], T(com.example.medicalapp.model.Appointment.AppointmentStatus).ACCEPTED)}" class="empty-state">
+                            <p>Brak zaakceptowanych wizyt</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="appointments-section">
+                    <h2>
+                        <svg class="section-icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        Odrzucone wizyty
+                    </h2>
+                    <div class="appointments-cards">
+                        <div th:each="appointment : ${appointments}" th:if="${appointment.status == T(com.example.medicalapp.model.Appointment.AppointmentStatus).REJECTED}" class="appointment-card rejected">
+                            <div class="appointment-header">
+                                <span class="appointment-date" th:text="${#temporals.format(appointment.date, 'dd.MM.yyyy HH:mm')}"></span>
+                                <span class="status-badge rejected">Odrzucona</span>
+                            </div>
+                            <div class="appointment-body">
+                                <p class="doctor-name" th:text="${'Lekarz: ' + 'Dr. ' + appointment.doctor.user.firstName + ' ' + appointment.doctor.user.lastName}"></p>
+                                <p class="appointment-reason" th:text="${'Powód: ' + appointment.reason}"></p>
+                                <p th:if="${appointment.isNfz}" th:text="'NFZ'"></p>
+                                <p th:if="${!appointment.isNfz}" th:text="${'Cena: ' + appointment.doctor.price + ' PLN'}"></p>
+                                <p class="rejection-reason" th:if="${appointment.rejectionReason}" th:text="${'Powód odrzucenia: ' + appointment.rejectionReason}"></p>
+                            </div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(appointments) || !#lists.contains(appointments.![status], T(com.example.medicalapp.model.Appointment.AppointmentStatus).REJECTED)}" class="empty-state">
+                            <p>Brak odrzuconych wizyt</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pricing-table">
+                <h2>Cennik wizyt</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Lekarz</th>
+                            <th>Specjalizacja</th>
+                            <th>Cena (PLN)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="doctor : ${doctors}">
+                            <td th:text="${'Dr. ' + doctor.user.firstName + '  '+ doctor.user.lastName}"></td>
+                            <td th:text="${doctor.specialization}"></td>
+                            <td th:text="${doctor.price}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div th:replace="~{fragments/footer :: main-footer}"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const background = document.querySelector('.background-animation');
+            document.addEventListener('mousemove', (e) => {
+                const x = e.clientX / window.innerWidth;
+                const y = e.clientY / window.innerHeight;
+                background.style.background = `
+                    linear-gradient(
+                        ${45 + x * 10}deg,
+                        rgba(37, 99, 235, ${0.1 + y * 0.1}),
+                        rgba(59, 130, 246, ${0.1 + x * 0.1})
+                    )
+                `;
+            });
+
+            document.querySelectorAll('.password-toggle').forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                    input.setAttribute('type', type);
+                    this.classList.toggle('show');
+                });
+            });
+
+            const inputs = document.querySelectorAll('.input-animated');
+            inputs.forEach(input => {
+                if (input.value) {
+                    input.classList.add('has-value');
+                }
+                
+                input.addEventListener('focus', () => {
+                    input.classList.add('focused');
+                });
+                
+                input.addEventListener('blur', () => {
+                    if (!input.value) {
+                        input.classList.remove('focused');
+                    }
+                });
+                
+                input.addEventListener('change', () => {
+                    if (input.value) {
+                        input.classList.add('has-value');
+                    } else {
+                        input.classList.remove('has-value');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

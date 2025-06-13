@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Zarządzanie dostępnością</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="background-animation"></div>
+    
+    <div th:replace="~{fragments/nav :: main-nav}"></div>
+
+    <div class="content-container">
+        <h2>Zarządzaj godzinami przyjęć</h2>
+        
+        <div th:if="${successMessage}" class="alert alert-success">
+            <span th:text="${successMessage}"></span>
+        </div>
+        
+        <div th:if="${errorMessage}" class="alert alert-danger">
+            <span th:text="${errorMessage}"></span>
+        </div>
+        
+        <form th:action="@{/doctor/availability}" method="post" class="availability-form">
+            <div class="days-grid">
+                <div th:each="day : ${T(java.time.DayOfWeek).values()}" 
+                     th:if="${day != T(java.time.DayOfWeek).SATURDAY && day != T(java.time.DayOfWeek).SUNDAY}" 
+                     class="day-schedule">
+                    <h3 th:text="${day.getDisplayName(T(java.time.format.TextStyle).FULL, new java.util.Locale('pl', 'PL'))}">
+                        Dzień tygodnia
+                    </h3>
+                    <div class="enable-day">
+                        <label>Dzień przyjęć:</label>
+                        <input type="checkbox" 
+                               th:name="${'enabled_' + day}" 
+                               th:checked="${availabilities.get(day) != null}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="general-hours">
+                <h3>Godziny przyjęć</h3>
+                <div class="time-inputs">
+                    <div class="time-range">
+                        <label>Od:</label>
+                        <input type="time" name="generalStartTime" required
+                               th:value="${generalStartTime}">
+                    </div>
+                    <div class="time-range">
+                        <label>Do:</label>
+                        <input type="time" name="generalEndTime" required
+                               th:value="${generalEndTime}">
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="submit-button">Zapisz harmonogram</button>
+        </form>
+
+
+        <div class="availability-section">
+            <div class="form-group">
+                <h4>Cena wizyty</h4>
+                <form th:action="@{/doctor/update-price}" method="post" class="availability-form">
+                    <div class="input-group">
+                        <label for="price">Kwota (PLN):</label>
+                        <input type="number" 
+                               id="price" 
+                               name="price" 
+                               step="0.01" 
+                               th:value="${doctor.price}" 
+                               class="form-control"
+                               required>
+                    </div>
+                    <button type="submit" class="submit-button">Aktualizuj cenę</button>
+                </form>
+            </div>
+        </div>
+
+    <div th:replace="~{fragments/footer :: main-footer}"></div>
+
+    <script src="/js/animations.js"></script>
+    <script src="/js/form-validation.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            new AnimationHandler();
+        });
+    </script>
+</body>
+</html>

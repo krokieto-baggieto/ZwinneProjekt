@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Raporty</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div th:replace="~{fragments/nav :: main-nav}"></div>
+
+    <div class="admin-container">
+        <div class="dashboard-container">
+            <div class="content-container">
+                <h2>Raporty statystyczne</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Liczba pacjentów</h3>
+                        <p th:text="${totalPatients}">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Liczba lekarzy</h3>
+                        <p th:text="${totalDoctors}">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Liczba wizyt</h3>
+                        <p th:text="${totalAppointments}">0</p>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3>Wizyty według statusu</h3>
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Wizyty według lekarza</h3>
+                        <canvas id="doctorChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Wizyty w czasie</h3>
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div th:replace="~{fragments/footer :: main-footer}"></div>
+
+
+    <script src="/js/animations.js"></script>
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            new AnimationHandler();
+            const statusData = /*[[${appointmentsByStatus}]]*/ {};
+            const doctorData = /*[[${appointmentsByDoctor}]]*/ {};
+            const timelineData = /*[[${appointmentsByMonth}]]*/ {};
+
+
+            const statusChart = new Chart(
+                document.getElementById('statusChart'),
+                {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(statusData),
+                        datasets: [{
+                            data: Object.values(statusData),
+                            backgroundColor: [
+                                '#4CAF50', // ACCEPTED
+                                '#FFC107', // PENDING
+                                '#F44336'  // REJECTED
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Rozkład wizyt według statusu'
+                            }
+                        }
+                    }
+                }
+            );
+
+            const doctorChart = new Chart(
+                document.getElementById('doctorChart'),
+                {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(doctorData),
+                        datasets: [{
+                            label: 'Liczba wizyt',
+                            data: Object.values(doctorData),
+                            backgroundColor: '#2196F3'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Liczba wizyt według lekarza'
+                            }
+                        }
+                    }
+                }
+            );
+
+
+            const timelineChart = new Chart(
+                document.getElementById('timelineChart'),
+                {
+                    type: 'line',
+                    data: {
+                        labels: Object.keys(timelineData),
+                        datasets: [{
+                            label: 'Liczba wizyt',
+                            data: Object.values(timelineData),
+                            borderColor: '#673AB7',
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Trend wizyt w czasie'
+                            }
+                        }
+                    }
+                }
+            );
+        });
+    </script>
+</body>
+</html>

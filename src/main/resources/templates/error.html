@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Błąd</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="error-container">
+        <h1>Wystąpił błąd</h1>
+        <div th:if="${errorMessage}" class="alert alert-danger">
+            <span th:text="${errorMessage}"></span>
+        </div>
+        <a href="/admin" class="btn btn-primary">Wróć do panelu</a>
+    </div>
+</body>
+</html>

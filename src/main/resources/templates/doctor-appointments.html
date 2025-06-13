@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/springsecurity5">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Lekarza</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+    <script src="/js/common.js"></script>
+    <script src="/js/animations.js"></script>
+    <script src="/js/modal-handler.js"></script>
+</head>
+<body>
+    <div class="background-animation"></div>
+    
+    <div th:replace="~{fragments/nav :: main-nav}"></div>
+
+    <div class="dashboard-container">
+        <div class="content-container">
+            <div class="tabs-container">
+                <div class="tabs">
+                    <a href="#pending" class="tab active">
+                        <svg class="tab-icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                        </svg>
+                        Oczekujące
+                    </a>
+                    <a href="#accepted" class="tab">
+                        <svg class="tab-icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Zaakceptowane
+                    </a>
+                    <a href="#rejected" class="tab">
+                        <svg class="tab-icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        Odrzucone
+                    </a>
+                    <a href="#calendar" class="tab">
+                        <svg class="tab-icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                        </svg>
+                        Kalendarz
+                    </a>
+                </div>
+            </div>
+
+            <div class="tab-content-container">
+                <div id="pending" class="tab-content active">
+                    <h2>
+                        <svg class="tab-icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                        </svg>
+                        Oczekujące Wizyty
+                    </h2>
+                    <div class="table-container">
+                        <table th:if="${not #lists.isEmpty(pendingAppointments)}">
+                            <thead>
+                                <tr>
+                                    <th>Data i Godzina</th>
+                                    <th>Pacjent</th>
+                                    <th>Powód</th>
+                                    <th>Akcje</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="appointment : ${pendingAppointments}">
+                                    <td th:text="${#temporals.format(appointment.date, 'dd.MM.yyyy HH:mm')}"></td>
+                                    <td th:text="${appointment.patient.firstName + ' ' + appointment.patient.lastName}"></td>
+                                    <td th:if="${appointment.reason != null}" th:text="${appointment.reason}"></td>
+                                    <td th:if="${appointment.reason == null}">Brak powodu</td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button type="button" 
+                                                    class="btn-accept"
+                                                    th:onclick="'acceptAppointment(' + ${appointment.id} + ')'">
+                                                Akceptuj
+                                            </button>
+                                            <button type="button" 
+                                                    class="btn-reject"
+                                                    th:onclick="'showRejectModal(' + ${appointment.id} + ')'">
+                                                Odrzuć
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div th:if="${#lists.isEmpty(pendingAppointments)}" class="empty-state">
+                            <svg class="empty-icon" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                            </svg>
+                            <p>Brak oczekujących wizyt</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="accepted" class="tab-content">
+                    <h2>
+                        <svg class="tab-icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Zaakceptowane Wizyty
+                    </h2>
+                    <div class="table-container">
+                        <table th:if="${not #lists.isEmpty(acceptedAppointments)}" class="modern-table">
+                            <thead>
+                                <tr>
+                                    <th>Data i Godzina</th>
+                                    <th>Pacjent</th>
+                                    <th>Powód</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="appointment : ${acceptedAppointments}">
+                                    <td>
+                                        <div class="appointment-date">
+                                            <span class="date" th:text="${#temporals.format(appointment.date, 'dd.MM.yyyy')}"></span>
+                                            <span class="time" th:text="${#temporals.format(appointment.date, 'HH:mm')}"></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="patient-info">
+                                            <span class="patient-name" th:text="${appointment.patient.firstName + ' ' + appointment.patient.lastName}"></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="appointment-reason" th:text="${appointment.reason}"></div>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge accepted">Zaakceptowana</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div th:if="${#lists.isEmpty(acceptedAppointments)}" class="empty-state">
+                            <svg class="empty-icon" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                            </svg>
+                            <p>Brak zaakceptowanych wizyt</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="rejected" class="tab-content">
+                    <h2>
+                        <svg class="tab-icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        Odrzucone Wizyty
+                    </h2>
+                    <div class="table-container">
+                        <table th:if="${not #lists.isEmpty(rejectedAppointments)}">
+                            <thead>
+                                <tr>
+                                    <th>Data i Godzina</th>
+                                    <th>Pacjent</th>
+                                    <th>Powód wizyty</th>
+                                    <th>Powód odrzucenia</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="appointment : ${rejectedAppointments}">
+                                    <td th:text="${#temporals.format(appointment.date, 'dd.MM.yyyy HH:mm')}"></td>
+                                    <td th:text="${appointment.patient.firstName + ' ' + appointment.patient.lastName}"></td>
+                                    <td th:text="${appointment.reason}"></td>
+                                    <td th:text="${appointment.rejectionReason}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div th:if="${#lists.isEmpty(rejectedAppointments)}" class="empty-state">
+                            <svg class="empty-icon" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                            </svg>
+                            <p>Brak odrzuconych wizyt</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="calendar" class="tab-content">
+                    <div id="appointmentCalendar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="rejectModal" class="modal">
+        <div class="modal-content">
+            <button class="close" type="button">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+            </button>
+            <h2>Podaj powód odrzucenia</h2>
+            <form id="rejectForm" th:action="@{/doctor/appointments/reject}" method="post">
+                <input type="hidden" id="appointmentId" name="appointmentId">
+                <textarea 
+                    name="rejectionReason" 
+                    required 
+                    placeholder="Opisz powód odrzucenia wizyty..."></textarea>
+                <button type="submit">
+                    <svg class="button-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Odrzuć wizytę</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <div id="patientDetailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Szczegóły Pacjenta</h2>
+            <div id="patientDetails">
+                <p><strong>PESEL:</strong> <span id="patientPesel"></span></p>
+                <p><strong>Email:</strong> <span id="patientEmail"></span></p>
+                <p><strong>Telefon:</strong> <span id="patientPhone"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = e.target.getAttribute('href').substring(1); 
+                
+
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+
+                document.querySelectorAll('.tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                
+
+                document.getElementById(target).classList.add('active');
+                e.target.classList.add('active');
+            });
+        });
+
+
+        const rejectModal = document.getElementById('rejectModal');
+        const patientDetailsModal = document.getElementById('patientDetailsModal');
+        const closeButtons = document.getElementsByClassName('close');
+
+
+        Array.from(closeButtons).forEach(button => {
+            button.onclick = function() {
+
+                this.closest('.modal').style.display = "none";
+            }
+        });
+
+
+        window.onclick = function(event) {
+            if (event.target == rejectModal) {
+                rejectModal.style.display = "none";
+            }
+            if (event.target == patientDetailsModal) {
+                patientDetailsModal.style.display = "none";
+            }
+        }
+        function showPatientDetails(patientId) {
+            fetch(`/api/patients/${patientId}`)
+                .then(response => response.json())
+                .then(patient => {
+                    document.getElementById('patientPesel').textContent = patient.pesel;
+                    document.getElementById('patientEmail').textContent = patient.email;
+                    document.getElementById('patientPhone').textContent = patient.phoneNumber;
+                    document.getElementById('patientDetailsModal').style.display = 'block';
+                });
+        }
+
+
+        const modal = document.getElementById('rejectModal');
+        const span = document.getElementsByClassName('close')[0];
+        const rejectForm = document.getElementById('rejectForm');
+
+        function showRejectModal(appointmentId) {
+            document.getElementById('appointmentId').value = appointmentId;
+            modal.style.display = "block";
+        }
+
+        function acceptAppointment(appointmentId) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/doctor/appointments/${appointmentId}/accept`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+    <script th:inline="javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('appointmentCalendar');
+    const events = /*[[${calendarEvents}]]*/ [];
+    
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: ''
+        },
+        locale: 'pl',
+        firstDay: 1,
+        nowIndicator: true,
+        events: events,
+        buttonText: {
+            today: 'Dzisiaj'
+        },
+        eventTimeFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            meridiem: false,
+            hour12: false
+        },
+            eventContent: function(info) {
+            return {
+                html: `
+                    <div class="fc-event-main">
+                        <span class="fc-event-time">${info.timeText}</span>
+                        <span class="fc-event-title">${info.event.title}</span>
+                    </div>
+                `
+            };
+        }
+    });
+    
+    calendar.render();
+    
+
+    setTimeout(() => {
+        calendar.updateSize();
+    }, 100);
+
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            if (tab.getAttribute('href') === '#calendar') {
+                setTimeout(() => {
+                    calendar.updateSize();
+                }, 100);
+            }
+        });
+    });
+});
+</script>
+
+    <div th:replace="~{fragments/footer :: main-footer}"></div>
+</body>
+</html>

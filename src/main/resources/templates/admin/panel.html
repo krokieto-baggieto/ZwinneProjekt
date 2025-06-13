@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Panel Administratora</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <div class="admin-container">
+        <div th:replace="~{fragments/nav :: main-nav}"></div>
+
+        <div class="content-container">
+
+            <h1>Panel Administratora</h1>
+        
+            <div th:if="${successMessage}" class="alert alert-success">
+                <span th:text="${successMessage}"></span>
+            </div>
+
+            <div th:if="${errorMessage}" class="alert alert-danger">
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <div class="admin-actions">
+                <a href="/admin/user/add" class="btn btn-primary">Dodaj nowego użytkownika</a>
+                <a href="/admin/reports" class="btn btn-info">Raporty statystyczne</a>
+            </div>
+            
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Login</th>
+                        <th>Email</th>
+                        <th>Imię</th>
+                        <th>Nazwisko</th>
+                        <th>PESEL</th>
+                        <th>Telefon</th>
+                        <th>Rola</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="user : ${users}">
+                        <td th:text="${user.id}"></td>
+                        <td th:text="${user.username}"></td>
+                        <td th:text="${user.email}"></td>
+                        <td th:text="${user.firstName}"></td>
+                        <td th:text="${user.lastName}"></td>
+                        <td th:text="${user.pesel}"></td>
+                        <td th:text="${user.phoneNumber}"></td>
+                        <td th:text="${user.role}"></td>
+                        <td>
+                            <a th:href="@{/admin/users/edit/{id}(id=${user.id})}" class="btn btn-edit">Edytuj</a>
+                            <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-delete" onclick="return confirm('Czy na pewno chcesz usunąć tego użytkownika?')">Usuń</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+        <div th:replace="~{fragments/footer :: main-footer}"></div>
+    </div>
+
+
+    <script src="/js/animations.js"></script>
+    <script src="/js/modal-handler.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            new AnimationHandler();
+            new ModalHandler();
+        });
+    </script>
+</body>
+</html>
