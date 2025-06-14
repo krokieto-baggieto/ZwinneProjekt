@@ -15,6 +15,15 @@
         <version>3.2.0</version> <!-- Lub najnowsza wersja -->
     </parent>
 
+    <developers>
+        <developer>
+            <name>Michał Lewczyński</name>
+        </developer>
+        <developer>
+            <name>Paweł Hernik</name>
+        </developer>
+    </developers>
+
     <dependencies>
 
 
@@ -73,6 +82,20 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version> <!-- Version from your error log -->
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.30</version> <!-- Version from your pom -->
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
         </plugins>
     </build>
